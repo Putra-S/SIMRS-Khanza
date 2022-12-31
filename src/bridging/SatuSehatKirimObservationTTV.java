@@ -1261,46 +1261,6 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                    "<td valign='top'>"+rs.getString("satu_sehat_observationttvsuhu")+"</td>"+
                                 "</tr>");
                         }
-                        LoadHTML.setText(
-                            "<html>"+
-                              "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='tbl_form'>"+
-                               htmlContent.toString()+
-                              "</table>"+
-                            "</html>"
-                        );
-
-                        File g = new File("file2.css");            
-                        BufferedWriter bg = new BufferedWriter(new FileWriter(g));
-                        bg.write(
-                            ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
-                            ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
-                            ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
-                            ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
-                            ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
-                            ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
-                            ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
-                            ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
-                            ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
-                        );
-                        bg.close();
-
-                        File f = new File("DataSatuSehatObservationTTVSuhu.html");            
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
-                        bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
-                                    "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
-                                    "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
-                                        "<tr class='isi2'>"+
-                                            "<td valign='top' align='center'>"+
-                                                "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
-                                                akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
-                                                akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
-                                                "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV SUHU TUBUH<br><br></font>"+        
-                                            "</td>"+
-                                       "</tr>"+
-                                    "</table>")
-                        );
-                        bw.close();                         
-                        Desktop.getDesktop().browse(f.toURI());
                     } catch (Exception e) {
                         System.out.println("Notif : "+e);
                     } finally{
@@ -1311,7 +1271,102 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                             ps.close();
                         }
                     }
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat,pemeriksaan_ranap.suhu_tubuh, "+
+                            "ifnull(satu_sehat_observationttvsuhu.id_observation,'') as satu_sehat_observationttvsuhu from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ranap on pemeriksaan_ranap.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ranap.nip=pegawai.nik left join satu_sehat_observationttvsuhu on satu_sehat_observationttvsuhu.no_rawat=pemeriksaan_ranap.no_rawat "+
+                            "and satu_sehat_observationttvsuhu.tgl_perawatan=pemeriksaan_ranap.tgl_perawatan and satu_sehat_observationttvsuhu.jam_rawat=pemeriksaan_ranap.jam_rawat "+
+                            "and satu_sehat_observationttvsuhu.status='Ranap' where pemeriksaan_ranap.suhu_tubuh<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ranap"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("suhu_tubuh")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvsuhu")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+                    LoadHTML.setText(
+                        "<html>"+
+                          "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='tbl_form'>"+
+                           htmlContent.toString()+
+                          "</table>"+
+                        "</html>"
+                    );
 
+                    File g = new File("file2.css");            
+                    BufferedWriter bg = new BufferedWriter(new FileWriter(g));
+                    bg.write(
+                        ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
+                        ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
+                        ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
+                        ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
+                        ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
+                        ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
+                    );
+                    bg.close();
+
+                    File f = new File("DataSatuSehatObservationTTVSuhu.html");            
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
+                    bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
+                                "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
+                                "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
+                                    "<tr class='isi2'>"+
+                                        "<td valign='top' align='center'>"+
+                                            "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                            akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                            akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
+                                            "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV SUHU TUBUH<br><br></font>"+        
+                                        "</td>"+
+                                   "</tr>"+
+                                "</table>")
+                    );
+                    bw.close();                         
+                    Desktop.getDesktop().browse(f.toURI());
                 }catch(Exception e){
                     System.out.println("Notifikasi : "+e);
                 }
@@ -1384,46 +1439,6 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                    "<td valign='top'>"+rs.getString("satu_sehat_observationttvrespirasi")+"</td>"+
                                 "</tr>");
                         }
-                        LoadHTML.setText(
-                            "<html>"+
-                              "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='tbl_form'>"+
-                               htmlContent.toString()+
-                              "</table>"+
-                            "</html>"
-                        );
-
-                        File g = new File("file2.css");            
-                        BufferedWriter bg = new BufferedWriter(new FileWriter(g));
-                        bg.write(
-                            ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
-                            ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
-                            ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
-                            ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
-                            ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
-                            ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
-                            ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
-                            ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
-                            ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
-                        );
-                        bg.close();
-
-                        File f = new File("DataSatuSehatObservationTTVRespirasi.html");            
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
-                        bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
-                                    "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
-                                    "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
-                                        "<tr class='isi2'>"+
-                                            "<td valign='top' align='center'>"+
-                                                "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
-                                                akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
-                                                akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
-                                                "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV RESPIRASI<br><br></font>"+        
-                                            "</td>"+
-                                       "</tr>"+
-                                    "</table>")
-                        );
-                        bw.close();                         
-                        Desktop.getDesktop().browse(f.toURI());
                     } catch (Exception e) {
                         System.out.println("Notif : "+e);
                     } finally{
@@ -1435,6 +1450,103 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                         }
                     }
 
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat,pemeriksaan_ranap.respirasi, "+
+                            "ifnull(satu_sehat_observationttvrespirasi.id_observation,'') as satu_sehat_observationttvrespirasi from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ranap on pemeriksaan_ranap.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ranap.nip=pegawai.nik left join satu_sehat_observationttvrespirasi on satu_sehat_observationttvrespirasi.no_rawat=pemeriksaan_ranap.no_rawat "+
+                            "and satu_sehat_observationttvrespirasi.tgl_perawatan=pemeriksaan_ranap.tgl_perawatan and satu_sehat_observationttvrespirasi.jam_rawat=pemeriksaan_ranap.jam_rawat "+
+                            "and satu_sehat_observationttvrespirasi.status='Ranap' where pemeriksaan_ranap.respirasi<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ranap"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("respirasi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvrespirasi")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+                    
+                    LoadHTML.setText(
+                        "<html>"+
+                          "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='tbl_form'>"+
+                           htmlContent.toString()+
+                          "</table>"+
+                        "</html>"
+                    );
+
+                    File g = new File("file2.css");            
+                    BufferedWriter bg = new BufferedWriter(new FileWriter(g));
+                    bg.write(
+                        ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
+                        ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
+                        ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
+                        ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
+                        ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
+                        ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
+                    );
+                    bg.close();
+
+                    File f = new File("DataSatuSehatObservationTTVRespirasi.html");            
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
+                    bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
+                                "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
+                                "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
+                                    "<tr class='isi2'>"+
+                                        "<td valign='top' align='center'>"+
+                                            "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                            akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                            akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
+                                            "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV RESPIRASI<br><br></font>"+        
+                                        "</td>"+
+                                   "</tr>"+
+                                "</table>")
+                    );
+                    bw.close();                         
+                    Desktop.getDesktop().browse(f.toURI());
                 }catch(Exception e){
                     System.out.println("Notifikasi : "+e);
                 }
@@ -1507,46 +1619,6 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                    "<td valign='top'>"+rs.getString("satu_sehat_observationttvnadi")+"</td>"+
                                 "</tr>");
                         }
-                        LoadHTML.setText(
-                            "<html>"+
-                              "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='tbl_form'>"+
-                               htmlContent.toString()+
-                              "</table>"+
-                            "</html>"
-                        );
-
-                        File g = new File("file2.css");            
-                        BufferedWriter bg = new BufferedWriter(new FileWriter(g));
-                        bg.write(
-                            ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
-                            ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
-                            ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
-                            ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
-                            ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
-                            ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
-                            ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
-                            ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
-                            ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
-                        );
-                        bg.close();
-
-                        File f = new File("DataSatuSehatObservationTTVNadi.html");            
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
-                        bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
-                                    "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
-                                    "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
-                                        "<tr class='isi2'>"+
-                                            "<td valign='top' align='center'>"+
-                                                "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
-                                                akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
-                                                akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
-                                                "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV NADI<br><br></font>"+        
-                                            "</td>"+
-                                       "</tr>"+
-                                    "</table>")
-                        );
-                        bw.close();                         
-                        Desktop.getDesktop().browse(f.toURI());
                     } catch (Exception e) {
                         System.out.println("Notif : "+e);
                     } finally{
@@ -1558,6 +1630,103 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                         }
                     }
 
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat,pemeriksaan_ranap.nadi, "+
+                            "ifnull(satu_sehat_observationttvnadi.id_observation,'') as satu_sehat_observationttvnadi from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ranap on pemeriksaan_ranap.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ranap.nip=pegawai.nik left join satu_sehat_observationttvnadi on satu_sehat_observationttvnadi.no_rawat=pemeriksaan_ranap.no_rawat "+
+                            "and satu_sehat_observationttvnadi.tgl_perawatan=pemeriksaan_ranap.tgl_perawatan and satu_sehat_observationttvnadi.jam_rawat=pemeriksaan_ranap.jam_rawat "+
+                            "and satu_sehat_observationttvnadi.status='Ranap' where pemeriksaan_ranap.nadi<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ranap"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nadi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvnadi")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+                    
+                    LoadHTML.setText(
+                        "<html>"+
+                          "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='tbl_form'>"+
+                           htmlContent.toString()+
+                          "</table>"+
+                        "</html>"
+                    );
+
+                    File g = new File("file2.css");            
+                    BufferedWriter bg = new BufferedWriter(new FileWriter(g));
+                    bg.write(
+                        ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
+                        ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
+                        ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
+                        ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
+                        ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
+                        ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
+                    );
+                    bg.close();
+
+                    File f = new File("DataSatuSehatObservationTTVNadi.html");            
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
+                    bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
+                                "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
+                                "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
+                                    "<tr class='isi2'>"+
+                                        "<td valign='top' align='center'>"+
+                                            "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                            akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                            akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
+                                            "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV NADI<br><br></font>"+        
+                                        "</td>"+
+                                   "</tr>"+
+                                "</table>")
+                    );
+                    bw.close();                         
+                    Desktop.getDesktop().browse(f.toURI());
                 }catch(Exception e){
                     System.out.println("Notifikasi : "+e);
                 }
@@ -1630,46 +1799,6 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                    "<td valign='top'>"+rs.getString("satu_sehat_observationttvspo2")+"</td>"+
                                 "</tr>");
                         }
-                        LoadHTML.setText(
-                            "<html>"+
-                              "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='tbl_form'>"+
-                               htmlContent.toString()+
-                              "</table>"+
-                            "</html>"
-                        );
-
-                        File g = new File("file2.css");            
-                        BufferedWriter bg = new BufferedWriter(new FileWriter(g));
-                        bg.write(
-                            ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
-                            ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
-                            ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
-                            ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
-                            ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
-                            ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
-                            ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
-                            ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
-                            ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
-                        );
-                        bg.close();
-
-                        File f = new File("DataSatuSehatObservationTTVSpO2.html");            
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
-                        bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
-                                    "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
-                                    "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
-                                        "<tr class='isi2'>"+
-                                            "<td valign='top' align='center'>"+
-                                                "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
-                                                akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
-                                                akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
-                                                "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV SPO2<br><br></font>"+        
-                                            "</td>"+
-                                       "</tr>"+
-                                    "</table>")
-                        );
-                        bw.close();                         
-                        Desktop.getDesktop().browse(f.toURI());
                     } catch (Exception e) {
                         System.out.println("Notif : "+e);
                     } finally{
@@ -1681,21 +1810,1129 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                         }
                     }
 
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat,pemeriksaan_ranap.spo2, "+
+                            "ifnull(satu_sehat_observationttvspo2.id_observation,'') as satu_sehat_observationttvspo2 from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ranap on pemeriksaan_ranap.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ranap.nip=pegawai.nik left join satu_sehat_observationttvspo2 on satu_sehat_observationttvspo2.no_rawat=pemeriksaan_ranap.no_rawat "+
+                            "and satu_sehat_observationttvspo2.tgl_perawatan=pemeriksaan_ranap.tgl_perawatan and satu_sehat_observationttvspo2.jam_rawat=pemeriksaan_ranap.jam_rawat "+
+                            "and satu_sehat_observationttvspo2.status='Ranap' where pemeriksaan_ranap.spo2<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ranap"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("spo2")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvspo2")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+                    
+                    LoadHTML.setText(
+                        "<html>"+
+                          "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='tbl_form'>"+
+                           htmlContent.toString()+
+                          "</table>"+
+                        "</html>"
+                    );
+
+                    File g = new File("file2.css");            
+                    BufferedWriter bg = new BufferedWriter(new FileWriter(g));
+                    bg.write(
+                        ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
+                        ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
+                        ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
+                        ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
+                        ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
+                        ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
+                    );
+                    bg.close();
+
+                    File f = new File("DataSatuSehatObservationTTVSpO2.html");            
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
+                    bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
+                                "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
+                                "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
+                                    "<tr class='isi2'>"+
+                                        "<td valign='top' align='center'>"+
+                                            "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                            akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                            akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
+                                            "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV SPO2<br><br></font>"+        
+                                        "</td>"+
+                                   "</tr>"+
+                                "</table>")
+                    );
+                    bw.close();                         
+                    Desktop.getDesktop().browse(f.toURI());
                 }catch(Exception e){
                     System.out.println("Notifikasi : "+e);
                 }
                 break;
             case 4:
+                try{
+                    htmlContent = new StringBuilder();
+                    htmlContent.append(                             
+                        "<tr class='isi'>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal Registrasi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.Rawat</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.RM</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Nama Pasien</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.KTP Pasien</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Stts Rawat</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Stts Lanjut</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal Pulang</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>ID Encounter</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>GCS</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Petugas/Dokter/Praktisi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.KTP Praktisi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Jam</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>ID Observation Suhu</b></td>"+
+                        "</tr>"
+                    );
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ralan.tgl_perawatan,pemeriksaan_ralan.jam_rawat,pemeriksaan_ralan.gcs, "+
+                            "ifnull(satu_sehat_observationttvgcs.id_observation,'') as satu_sehat_observationttvgcs from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ralan on pemeriksaan_ralan.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ralan.nip=pegawai.nik left join satu_sehat_observationttvgcs on satu_sehat_observationttvgcs.no_rawat=pemeriksaan_ralan.no_rawat "+
+                            "and satu_sehat_observationttvgcs.tgl_perawatan=pemeriksaan_ralan.tgl_perawatan and satu_sehat_observationttvgcs.jam_rawat=pemeriksaan_ralan.jam_rawat "+
+                            "and satu_sehat_observationttvgcs.status='Ralan' where pemeriksaan_ralan.gcs<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ralan.tgl_perawatan,pemeriksaan_ralan.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ralan"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("gcs")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvgcs")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat,pemeriksaan_ranap.gcs, "+
+                            "ifnull(satu_sehat_observationttvgcs.id_observation,'') as satu_sehat_observationttvgcs from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ranap on pemeriksaan_ranap.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ranap.nip=pegawai.nik left join satu_sehat_observationttvgcs on satu_sehat_observationttvgcs.no_rawat=pemeriksaan_ranap.no_rawat "+
+                            "and satu_sehat_observationttvgcs.tgl_perawatan=pemeriksaan_ranap.tgl_perawatan and satu_sehat_observationttvgcs.jam_rawat=pemeriksaan_ranap.jam_rawat "+
+                            "and satu_sehat_observationttvgcs.status='Ranap' where pemeriksaan_ranap.gcs<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ranap"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("gcs")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvgcs")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+                    
+                    LoadHTML.setText(
+                        "<html>"+
+                          "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='tbl_form'>"+
+                           htmlContent.toString()+
+                          "</table>"+
+                        "</html>"
+                    );
+
+                    File g = new File("file2.css");            
+                    BufferedWriter bg = new BufferedWriter(new FileWriter(g));
+                    bg.write(
+                        ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
+                        ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
+                        ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
+                        ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
+                        ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
+                        ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
+                    );
+                    bg.close();
+
+                    File f = new File("DataSatuSehatObservationTTVGcs.html");            
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
+                    bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
+                                "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
+                                "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
+                                    "<tr class='isi2'>"+
+                                        "<td valign='top' align='center'>"+
+                                            "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                            akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                            akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
+                                            "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV GCS<br><br></font>"+        
+                                        "</td>"+
+                                   "</tr>"+
+                                "</table>")
+                    );
+                    bw.close();                         
+                    Desktop.getDesktop().browse(f.toURI());
+                }catch(Exception e){
+                    System.out.println("Notifikasi : "+e);
+                }
                 break;
             case 5:
+                try{
+                    htmlContent = new StringBuilder();
+                    htmlContent.append(                             
+                        "<tr class='isi'>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal Registrasi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.Rawat</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.RM</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Nama Pasien</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.KTP Pasien</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Stts Rawat</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Stts Lanjut</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal Pulang</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>ID Encounter</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Kesadaran</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Petugas/Dokter/Praktisi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.KTP Praktisi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Jam</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>ID Observation Suhu</b></td>"+
+                        "</tr>"
+                    );
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ralan.tgl_perawatan,pemeriksaan_ralan.jam_rawat,pemeriksaan_ralan.kesadaran, "+
+                            "ifnull(satu_sehat_observationttvkesadaran.id_observation,'') as satu_sehat_observationttvkesadaran from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ralan on pemeriksaan_ralan.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ralan.nip=pegawai.nik left join satu_sehat_observationttvkesadaran on satu_sehat_observationttvkesadaran.no_rawat=pemeriksaan_ralan.no_rawat "+
+                            "and satu_sehat_observationttvkesadaran.tgl_perawatan=pemeriksaan_ralan.tgl_perawatan and satu_sehat_observationttvkesadaran.jam_rawat=pemeriksaan_ralan.jam_rawat "+
+                            "and satu_sehat_observationttvkesadaran.status='Ralan' where pemeriksaan_ralan.kesadaran<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ralan.tgl_perawatan,pemeriksaan_ralan.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ralan"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("kesadaran")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvkesadaran")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat,pemeriksaan_ranap.kesadaran, "+
+                            "ifnull(satu_sehat_observationttvkesadaran.id_observation,'') as satu_sehat_observationttvkesadaran from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ranap on pemeriksaan_ranap.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ranap.nip=pegawai.nik left join satu_sehat_observationttvkesadaran on satu_sehat_observationttvkesadaran.no_rawat=pemeriksaan_ranap.no_rawat "+
+                            "and satu_sehat_observationttvkesadaran.tgl_perawatan=pemeriksaan_ranap.tgl_perawatan and satu_sehat_observationttvkesadaran.jam_rawat=pemeriksaan_ranap.jam_rawat "+
+                            "and satu_sehat_observationttvkesadaran.status='Ranap' where pemeriksaan_ranap.kesadaran<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ranap"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("kesadaran")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvkesadaran")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+                    
+                    LoadHTML.setText(
+                        "<html>"+
+                          "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='tbl_form'>"+
+                           htmlContent.toString()+
+                          "</table>"+
+                        "</html>"
+                    );
+
+                    File g = new File("file2.css");            
+                    BufferedWriter bg = new BufferedWriter(new FileWriter(g));
+                    bg.write(
+                        ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
+                        ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
+                        ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
+                        ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
+                        ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
+                        ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
+                    );
+                    bg.close();
+
+                    File f = new File("DataSatuSehatObservationTTVKesadaran.html");            
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
+                    bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
+                                "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
+                                "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
+                                    "<tr class='isi2'>"+
+                                        "<td valign='top' align='center'>"+
+                                            "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                            akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                            akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
+                                            "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV KESADARAN<br><br></font>"+        
+                                        "</td>"+
+                                   "</tr>"+
+                                "</table>")
+                    );
+                    bw.close();                         
+                    Desktop.getDesktop().browse(f.toURI());
+                }catch(Exception e){
+                    System.out.println("Notifikasi : "+e);
+                }
                 break;
             case 6:
+                try{
+                    htmlContent = new StringBuilder();
+                    htmlContent.append(                             
+                        "<tr class='isi'>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal Registrasi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.Rawat</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.RM</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Nama Pasien</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.KTP Pasien</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Stts Rawat</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Stts Lanjut</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal Pulang</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>ID Encounter</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tensi(mmHg)</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Petugas/Dokter/Praktisi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.KTP Praktisi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Jam</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>ID Observation Suhu</b></td>"+
+                        "</tr>"
+                    );
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ralan.tgl_perawatan,pemeriksaan_ralan.jam_rawat,pemeriksaan_ralan.tensi, "+
+                            "ifnull(satu_sehat_observationttvtensi.id_observation,'') as satu_sehat_observationttvtensi from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ralan on pemeriksaan_ralan.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ralan.nip=pegawai.nik left join satu_sehat_observationttvtensi on satu_sehat_observationttvtensi.no_rawat=pemeriksaan_ralan.no_rawat "+
+                            "and satu_sehat_observationttvtensi.tgl_perawatan=pemeriksaan_ralan.tgl_perawatan and satu_sehat_observationttvtensi.jam_rawat=pemeriksaan_ralan.jam_rawat "+
+                            "and satu_sehat_observationttvtensi.status='Ralan' where pemeriksaan_ralan.tensi<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ralan.tgl_perawatan,pemeriksaan_ralan.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ralan"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tensi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvtensi")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat,pemeriksaan_ranap.tensi, "+
+                            "ifnull(satu_sehat_observationttvtensi.id_observation,'') as satu_sehat_observationttvtensi from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ranap on pemeriksaan_ranap.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ranap.nip=pegawai.nik left join satu_sehat_observationttvtensi on satu_sehat_observationttvtensi.no_rawat=pemeriksaan_ranap.no_rawat "+
+                            "and satu_sehat_observationttvtensi.tgl_perawatan=pemeriksaan_ranap.tgl_perawatan and satu_sehat_observationttvtensi.jam_rawat=pemeriksaan_ranap.jam_rawat "+
+                            "and satu_sehat_observationttvtensi.status='Ranap' where pemeriksaan_ranap.tensi<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ranap"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tensi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvtensi")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+                    
+                    LoadHTML.setText(
+                        "<html>"+
+                          "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='tbl_form'>"+
+                           htmlContent.toString()+
+                          "</table>"+
+                        "</html>"
+                    );
+
+                    File g = new File("file2.css");            
+                    BufferedWriter bg = new BufferedWriter(new FileWriter(g));
+                    bg.write(
+                        ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
+                        ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
+                        ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
+                        ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
+                        ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
+                        ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
+                    );
+                    bg.close();
+
+                    File f = new File("DataSatuSehatObservationTTVTensi.html");            
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
+                    bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
+                                "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
+                                "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
+                                    "<tr class='isi2'>"+
+                                        "<td valign='top' align='center'>"+
+                                            "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                            akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                            akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
+                                            "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV TENSI<br><br></font>"+        
+                                        "</td>"+
+                                   "</tr>"+
+                                "</table>")
+                    );
+                    bw.close();                         
+                    Desktop.getDesktop().browse(f.toURI());
+                }catch(Exception e){
+                    System.out.println("Notifikasi : "+e);
+                }
                 break;
             case 7:
+                try{
+                    htmlContent = new StringBuilder();
+                    htmlContent.append(                             
+                        "<tr class='isi'>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal Registrasi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.Rawat</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.RM</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Nama Pasien</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.KTP Pasien</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Stts Rawat</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Stts Lanjut</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal Pulang</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>ID Encounter</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>TB(Cm)</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Petugas/Dokter/Praktisi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.KTP Praktisi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Jam</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>ID Observation Suhu</b></td>"+
+                        "</tr>"
+                    );
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ralan.tgl_perawatan,pemeriksaan_ralan.jam_rawat,pemeriksaan_ralan.tinggi, "+
+                            "ifnull(satu_sehat_observationttvtb.id_observation,'') as satu_sehat_observationttvtb from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ralan on pemeriksaan_ralan.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ralan.nip=pegawai.nik left join satu_sehat_observationttvtb on satu_sehat_observationttvtb.no_rawat=pemeriksaan_ralan.no_rawat "+
+                            "and satu_sehat_observationttvtb.tgl_perawatan=pemeriksaan_ralan.tgl_perawatan and satu_sehat_observationttvtb.jam_rawat=pemeriksaan_ralan.jam_rawat "+
+                            "and satu_sehat_observationttvtb.status='Ralan' where pemeriksaan_ralan.tinggi<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ralan.tgl_perawatan,pemeriksaan_ralan.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ralan"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tinggi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvtb")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat,pemeriksaan_ranap.tinggi, "+
+                            "ifnull(satu_sehat_observationttvtb.id_observation,'') as satu_sehat_observationttvtb from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ranap on pemeriksaan_ranap.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ranap.nip=pegawai.nik left join satu_sehat_observationttvtb on satu_sehat_observationttvtb.no_rawat=pemeriksaan_ranap.no_rawat "+
+                            "and satu_sehat_observationttvtb.tgl_perawatan=pemeriksaan_ranap.tgl_perawatan and satu_sehat_observationttvtb.jam_rawat=pemeriksaan_ranap.jam_rawat "+
+                            "and satu_sehat_observationttvtb.status='Ranap' where pemeriksaan_ranap.tinggi<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ranap"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tinggi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvtb")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+                    
+                    LoadHTML.setText(
+                        "<html>"+
+                          "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='tbl_form'>"+
+                           htmlContent.toString()+
+                          "</table>"+
+                        "</html>"
+                    );
+
+                    File g = new File("file2.css");            
+                    BufferedWriter bg = new BufferedWriter(new FileWriter(g));
+                    bg.write(
+                        ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
+                        ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
+                        ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
+                        ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
+                        ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
+                        ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
+                    );
+                    bg.close();
+
+                    File f = new File("DataSatuSehatObservationTTVTinggiBadan.html");            
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
+                    bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
+                                "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
+                                "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"+
+                                    "<tr class='isi2'>"+
+                                        "<td valign='top' align='center'>"+
+                                            "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                            akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                            akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
+                                            "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV TINGGI BADAN<br><br></font>"+        
+                                        "</td>"+
+                                   "</tr>"+
+                                "</table>")
+                    );
+                    bw.close();                         
+                    Desktop.getDesktop().browse(f.toURI());
+                }catch(Exception e){
+                    System.out.println("Notifikasi : "+e);
+                }
                 break;
             case 8:
+                try{
+                    htmlContent = new StringBuilder();
+                    htmlContent.append(                             
+                        "<tr class='isi'>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal Registrasi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.Rawat</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.RM</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Nama Pasien</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.KTP Pasien</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Stts Rawat</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Stts Lanjut</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal Pulang</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>ID Encounter</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>BB(Kg)</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Petugas/Dokter/Praktisi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.KTP Praktisi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Jam</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>ID Observation Suhu</b></td>"+
+                        "</tr>"
+                    );
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ralan.tgl_perawatan,pemeriksaan_ralan.jam_rawat,pemeriksaan_ralan.berat, "+
+                            "ifnull(satu_sehat_observationttvbb.id_observation,'') as satu_sehat_observationttvbb from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ralan on pemeriksaan_ralan.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ralan.nip=pegawai.nik left join satu_sehat_observationttvbb on satu_sehat_observationttvbb.no_rawat=pemeriksaan_ralan.no_rawat "+
+                            "and satu_sehat_observationttvbb.tgl_perawatan=pemeriksaan_ralan.tgl_perawatan and satu_sehat_observationttvbb.jam_rawat=pemeriksaan_ralan.jam_rawat "+
+                            "and satu_sehat_observationttvbb.status='Ralan' where pemeriksaan_ralan.berat<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ralan.tgl_perawatan,pemeriksaan_ralan.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ralan"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("berat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvbb")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat,pemeriksaan_ranap.berat, "+
+                            "ifnull(satu_sehat_observationttvbb.id_observation,'') as satu_sehat_observationttvbb from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ranap on pemeriksaan_ranap.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ranap.nip=pegawai.nik left join satu_sehat_observationttvbb on satu_sehat_observationttvbb.no_rawat=pemeriksaan_ranap.no_rawat "+
+                            "and satu_sehat_observationttvbb.tgl_perawatan=pemeriksaan_ranap.tgl_perawatan and satu_sehat_observationttvbb.jam_rawat=pemeriksaan_ranap.jam_rawat "+
+                            "and satu_sehat_observationttvbb.status='Ranap' where pemeriksaan_ranap.berat<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ranap.tgl_perawatan,pemeriksaan_ranap.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ranap"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("berat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvbb")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+                    
+                    LoadHTML.setText(
+                        "<html>"+
+                          "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='bbl_form'>"+
+                           htmlContent.toString()+
+                          "</table>"+
+                        "</html>"
+                    );
+
+                    File g = new File("file2.css");            
+                    BufferedWriter bg = new BufferedWriter(new FileWriter(g));
+                    bg.write(
+                        ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
+                        ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
+                        ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
+                        ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
+                        ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
+                        ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
+                    );
+                    bg.close();
+
+                    File f = new File("DataSatuSehatObservationTTVBeratBadan.html");            
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
+                    bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
+                                "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
+                                "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='bbl_form'>"+
+                                    "<tr class='isi2'>"+
+                                        "<td valign='top' align='center'>"+
+                                            "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                            akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                            akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
+                                            "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV BERAT BADAN<br><br></font>"+        
+                                        "</td>"+
+                                   "</tr>"+
+                                "</table>")
+                    );
+                    bw.close();                         
+                    Desktop.getDesktop().browse(f.toURI());
+                }catch(Exception e){
+                    System.out.println("Notifikasi : "+e);
+                }
                 break;
             case 9:
+                try{
+                    htmlContent = new StringBuilder();
+                    htmlContent.append(                             
+                        "<tr class='isi'>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal Registrasi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.Rawat</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.RM</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Nama Pasien</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.KTP Pasien</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Stts Rawat</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Stts Lanjut</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal Pulang</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>ID Encounter</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>LP(Cm)</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Petugas/Dokter/Praktisi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>No.KTP Praktisi</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Tanggal</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>Jam</b></td>"+
+                            "<td valign='middle' bgcolor='#FFFAF8' align='center'><b>ID Observation Suhu</b></td>"+
+                        "</tr>"
+                    );
+                    ps=koneksi.prepareStatement(
+                            "select reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,reg_periksa.no_rkm_medis,pasien.nm_pasien,pasien.no_ktp,"+
+                            "reg_periksa.stts,DATE_FORMAT(tagihan_sadewa.tgl_bayar,'%Y-%m-%d %H:%i:%s') as pulang,satu_sehat_encounter.id_encounter,"+
+                            "pegawai.nama,pegawai.no_ktp as ktppraktisi,pemeriksaan_ralan.tgl_perawatan,pemeriksaan_ralan.jam_rawat,pemeriksaan_ralan.lingkar_perut, "+
+                            "ifnull(satu_sehat_observationttvlp.id_observation,'') as satu_sehat_observationttvlp from reg_periksa inner join pasien "+
+                            "on reg_periksa.no_rkm_medis=pasien.no_rkm_medis inner join tagihan_sadewa on tagihan_sadewa.no_nota=reg_periksa.no_rawat "+
+                            "inner join satu_sehat_encounter on satu_sehat_encounter.no_rawat=reg_periksa.no_rawat inner join pemeriksaan_ralan on pemeriksaan_ralan.no_rawat=reg_periksa.no_rawat "+
+                            "inner join pegawai on pemeriksaan_ralan.nip=pegawai.nik left join satu_sehat_observationttvlp on satu_sehat_observationttvlp.no_rawat=pemeriksaan_ralan.no_rawat "+
+                            "and satu_sehat_observationttvlp.tgl_perawatan=pemeriksaan_ralan.tgl_perawatan and satu_sehat_observationttvlp.jam_rawat=pemeriksaan_ralan.jam_rawat "+
+                            "and satu_sehat_observationttvlp.status='Ralan' where pemeriksaan_ralan.lingkar_perut<>'' and reg_periksa.tgl_registrasi between ? and ? "+
+                            (TCari.getText().equals("")?"":"and (reg_periksa.no_rawat like ? or reg_periksa.no_rkm_medis like ? or "+
+                            "pasien.nm_pasien like ? or pasien.no_ktp like ? or pegawai.no_ktp like ? or pegawai.nama like ? or "+
+                            "reg_periksa.stts like ?)")+" order by reg_periksa.tgl_registrasi,reg_periksa.jam_reg,reg_periksa.no_rawat,pemeriksaan_ralan.tgl_perawatan,pemeriksaan_ralan.jam_rawat");
+                    try {
+                        ps.setString(1,Valid.SetTgl(DTPCari1.getSelectedItem()+""));
+                        ps.setString(2,Valid.SetTgl(DTPCari2.getSelectedItem()+""));
+                        if(!TCari.getText().equals("")){
+                             ps.setString(3,"%"+TCari.getText()+"%");
+                             ps.setString(4,"%"+TCari.getText()+"%");
+                             ps.setString(5,"%"+TCari.getText()+"%");
+                             ps.setString(6,"%"+TCari.getText()+"%");
+                             ps.setString(7,"%"+TCari.getText()+"%");
+                             ps.setString(8,"%"+TCari.getText()+"%");
+                             ps.setString(9,"%"+TCari.getText()+"%");
+                        }
+                        rs=ps.executeQuery();
+                        while(rs.next()){
+                            htmlContent.append(
+                                "<tr class='isi'>"+
+                                    "<td valign='top'>"+rs.getString("tgl_registrasi")+" "+rs.getString("jam_reg")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_rkm_medis")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nm_pasien")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("no_ktp")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("stts")+"</td>"+
+                                   "<td valign='top'>"+"Ralan"+"</td>"+
+                                   "<td valign='top'>"+rs.getString("pulang")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("id_encounter")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("lingkar_perut")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("nama")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("ktppraktisi")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("tgl_perawatan")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("jam_rawat")+"</td>"+
+                                   "<td valign='top'>"+rs.getString("satu_sehat_observationttvlp")+"</td>"+
+                                "</tr>");
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Notif : "+e);
+                    } finally{
+                        if(rs!=null){
+                            rs.close();
+                        }
+                        if(ps!=null){
+                            ps.close();
+                        }
+                    }
+                    
+                    LoadHTML.setText(
+                        "<html>"+
+                          "<table width='1500px' border='0' align='center' cellpadding='1px' cellspacing='0' class='lpl_form'>"+
+                           htmlContent.toString()+
+                          "</table>"+
+                        "</html>"
+                    );
+
+                    File g = new File("file2.css");            
+                    BufferedWriter bg = new BufferedWriter(new FileWriter(g));
+                    bg.write(
+                        ".isi td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-bottom: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi2 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#323232;}"+
+                        ".isi3 td{border-right: 1px solid #e2e7dd;font: 8.5px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi4 td{font: 11px tahoma;height:12px;border-top: 1px solid #e2e7dd;background: #ffffff;color:#323232;}"+
+                        ".isi5 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#AA0000;}"+
+                        ".isi6 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#FF0000;}"+
+                        ".isi7 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#C8C800;}"+
+                        ".isi8 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#00AA00;}"+
+                        ".isi9 td{font: 8.5px tahoma;border:none;height:12px;background: #ffffff;color:#969696;}"
+                    );
+                    bg.close();
+
+                    File f = new File("DataSatuSehatObservationTTVLingkarPerut.html");            
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(f));            
+                    bw.write(LoadHTML.getText().replaceAll("<head>","<head>"+
+                                "<link href=\"file2.css\" rel=\"stylesheet\" type=\"text/css\" />"+
+                                "<table width='1500px' border='0' align='center' cellpadding='3px' cellspacing='0' class='lpl_form'>"+
+                                    "<tr class='isi2'>"+
+                                        "<td valign='top' align='center'>"+
+                                            "<font size='4' face='Tahoma'>"+akses.getnamars()+"</font><br>"+
+                                            akses.getalamatrs()+", "+akses.getkabupatenrs()+", "+akses.getpropinsirs()+"<br>"+
+                                            akses.getkontakrs()+", E-mail : "+akses.getemailrs()+"<br><br>"+
+                                            "<font size='2' face='Tahoma'>DATA PENGIRIMAN SATU SEHAT OBSERVATION-TTV LINGKAR PERUT<br><br></font>"+        
+                                        "</td>"+
+                                   "</tr>"+
+                                "</table>")
+                    );
+                    bw.close();                         
+                    Desktop.getDesktop().browse(f.toURI());
+                }catch(Exception e){
+                    System.out.println("Notifikasi : "+e);
+                }
                 break;
             default:
                 break;
