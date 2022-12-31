@@ -624,8 +624,8 @@
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-                  <JTabbedPaneConstraints tabName="TB">
-                    <Property name="tabTitle" type="java.lang.String" value="TB"/>
+                  <JTabbedPaneConstraints tabName="Tingi Badan">
+                    <Property name="tabTitle" type="java.lang.String" value="Tingi Badan"/>
                   </JTabbedPaneConstraints>
                 </Constraint>
               </Constraints>
@@ -653,8 +653,8 @@
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-                  <JTabbedPaneConstraints tabName="BB">
-                    <Property name="tabTitle" type="java.lang.String" value="BB"/>
+                  <JTabbedPaneConstraints tabName="Berat Badan">
+                    <Property name="tabTitle" type="java.lang.String" value="Berat Badan"/>
                   </JTabbedPaneConstraints>
                 </Constraint>
               </Constraints>
@@ -682,8 +682,8 @@
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-                  <JTabbedPaneConstraints tabName="LP">
-                    <Property name="tabTitle" type="java.lang.String" value="LP"/>
+                  <JTabbedPaneConstraints tabName="Lingkar Perut">
+                    <Property name="tabTitle" type="java.lang.String" value="Lingkar Perut"/>
                   </JTabbedPaneConstraints>
                 </Constraint>
               </Constraints>
