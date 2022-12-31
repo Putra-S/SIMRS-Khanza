@@ -19520,6 +19520,10 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
         this.setCursor(Cursor.getDefaultCursor());
     }
     
+    private void btnSignInSebelumAnestesiActionPerformed(java.awt.event.ActionEvent evt) {
+        
+    }
+    
     /**
     * @param args the command line arguments
     */
@@ -20179,7 +20183,7 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
             btnSkriningNutrisiLansia,btnSkriningNutrisiAnak,btnAkunRekeningHtHBankJabar,btnPembayaranBankJabar,btnPernyataanPasienUmum,btnKonselingFarmasi,
             btnPelayananInformasiObat,btnPersetujuanUmum,btnTransferPasienAntarRuang,btnReferensiDokterSatuSehat,btnReferensiPasienSatuSehat,
             btnMappingOrganisasiSatuSehat,btnMappingLokasiSatuSehat,btnKirimEncounterSatuSehat,btnCatatanCekGDS,btnKirimConditionSatuSehat,
-            btnChecklistPreOperasi,btnKirimObservationTTVSatuSehat;
+            btnChecklistPreOperasi,btnKirimObservationTTVSatuSehat,btnSignInSebelumAnestesi;
     
     public void isWall(){
         try{            
@@ -23529,6 +23533,11 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
             
             if(akses.getchecklist_pre_operasi()==true){
                 Panelmenu.add(btnChecklistPreOperasi);
+                jmlmenu++;
+            }
+            
+            if(akses.getsignin_sebelum_anestesi()==true){
+                Panelmenu.add(btnSignInSebelumAnestesi);
                 jmlmenu++;
             }
             
@@ -27999,6 +28008,11 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
         
         if(akses.getchecklist_pre_operasi()==true){
             Panelmenu.add(btnChecklistPreOperasi);
+            jmlmenu++;
+        }
+        
+        if(akses.getsignin_sebelum_anestesi()==true){
+            Panelmenu.add(btnSignInSebelumAnestesi);
             jmlmenu++;
         }
         
@@ -33757,6 +33771,13 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
             }                
         }
         
+        if(akses.getsignin_sebelum_anestesi()==true){
+            if(btnSignInSebelumAnestesi.getText().toLowerCase().trim().contains(TCari.getText().toLowerCase().trim())){
+                Panelmenu.add(btnSignInSebelumAnestesi);
+                jmlmenu++;
+            }                
+        }
+        
         if(akses.getpenilaian_pre_operasi()==true){
             if(btnPenilaianPreOperasi.getText().toLowerCase().trim().contains(TCari.getText().toLowerCase().trim())){
                 Panelmenu.add(btnPenilaianPreOperasi);
@@ -38963,5 +38984,13 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
         btnKirimObservationTTVSatuSehat.setName("btnKirimObservationTTVSatuSehat"); 
         btnKirimObservationTTVSatuSehat.setPreferredSize(new java.awt.Dimension(200, 90));
         btnKirimObservationTTVSatuSehat.addActionListener(this::btnKirimObservationTTVSatuSehatActionPerformed);
+        
+        btnSignInSebelumAnestesi = new widget.ButtonBig();
+        btnSignInSebelumAnestesi.setIcon(new javax.swing.ImageIcon(getClass().getResource("/48x48/9554573_calendar_note_date_schedule_event_icon.png")));
+        btnSignInSebelumAnestesi.setText("Sign-In Sebelum Anestesi");
+        btnSignInSebelumAnestesi.setIconTextGap(0);
+        btnSignInSebelumAnestesi.setName("btnSignInSebelumAnestesi"); 
+        btnSignInSebelumAnestesi.setPreferredSize(new java.awt.Dimension(200, 90));
+        btnSignInSebelumAnestesi.addActionListener(this::btnSignInSebelumAnestesiActionPerformed);
     }
 }
