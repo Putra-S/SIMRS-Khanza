@@ -66,7 +66,7 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
         tabModeSuhu=new DefaultTableModel(null,new String[]{
                 "P","Tanggal Registrasi","No.Rawat","No.RM","Nama Pasien","No.KTP Pasien","Stts Rawat","Stts Lanjut",
                 "Tanggal Pulang","ID Encounter","Suhu (°C)","Petugas/Dokter/Praktisi","No.KTP Praktisi","Tanggal","Jam",
-                "ID Observation Suhu","ID Organisasi"
+                "ID Observation Suhu"
             }){
               @Override public boolean isCellEditable(int rowIndex, int colIndex){
                 boolean a = false;
@@ -79,7 +79,7 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                  java.lang.Boolean.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, 
                  java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, 
                  java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, 
-                 java.lang.String.class,java.lang.String.class
+                 java.lang.String.class
              };
              @Override
              public Class getColumnClass(int columnIndex) {
@@ -467,7 +467,7 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
         
         tabModeTensi=new DefaultTableModel(null,new String[]{
                 "P","Tanggal Registrasi","No.Rawat","No.RM","Nama Pasien","No.KTP Pasien","Stts Rawat","Stts Lanjut",
-                "Tanggal Pulang","ID Encounter","Tensi","Petugas/Dokter/Praktisi","No.KTP Praktisi","Tanggal","Jam",
+                "Tanggal Pulang","ID Encounter","Tensi(mmHg)","Petugas/Dokter/Praktisi","No.KTP Praktisi","Tanggal","Jam",
                 "ID Observation Tensi"
             }){
               @Override public boolean isCellEditable(int rowIndex, int colIndex){
@@ -534,7 +534,7 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
         
         tabModeTB=new DefaultTableModel(null,new String[]{
                 "P","Tanggal Registrasi","No.Rawat","No.RM","Nama Pasien","No.KTP Pasien","Stts Rawat","Stts Lanjut",
-                "Tanggal Pulang","ID Encounter","TB","Petugas/Dokter/Praktisi","No.KTP Praktisi","Tanggal","Jam",
+                "Tanggal Pulang","ID Encounter","TB(Cm)","Petugas/Dokter/Praktisi","No.KTP Praktisi","Tanggal","Jam",
                 "ID Observation TB"
             }){
               @Override public boolean isCellEditable(int rowIndex, int colIndex){
@@ -1119,14 +1119,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbSuhu.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik Suhu Badan "+tbSuhu.getValueAt(i,4).toString()+" Pada Tanggal "+tbSuhu.getValueAt(i,13).toString()+" Jam "+tbSuhu.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik Suhu Badan di "+tbSuhu.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbSuhu.getValueAt(i,4).toString()+" Pada Tanggal "+tbSuhu.getValueAt(i,13).toString()+" Jam "+tbSuhu.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbSuhu.getValueAt(i,13).toString()+"T"+tbSuhu.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueQuantity\": {" +
@@ -1196,14 +1193,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbRespirasi.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik Respirasi "+tbRespirasi.getValueAt(i,4).toString()+" Pada Tanggal "+tbRespirasi.getValueAt(i,13).toString()+" Jam "+tbRespirasi.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik Respirasi di "+tbRespirasi.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbRespirasi.getValueAt(i,4).toString()+" Pada Tanggal "+tbRespirasi.getValueAt(i,13).toString()+" Jam "+tbRespirasi.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbRespirasi.getValueAt(i,13).toString()+"T"+tbRespirasi.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueQuantity\": {" +
@@ -1273,14 +1267,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbNadi.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik Nadi "+tbNadi.getValueAt(i,4).toString()+" Pada Tanggal "+tbNadi.getValueAt(i,13).toString()+" Jam "+tbNadi.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik Nadi di "+tbNadi.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbNadi.getValueAt(i,4).toString()+" Pada Tanggal "+tbNadi.getValueAt(i,13).toString()+" Jam "+tbNadi.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbNadi.getValueAt(i,13).toString()+"T"+tbNadi.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueQuantity\": {" +
@@ -1350,14 +1341,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbSpO2.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik SpO2 "+tbSpO2.getValueAt(i,4).toString()+" Pada Tanggal "+tbSpO2.getValueAt(i,13).toString()+" Jam "+tbSpO2.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik SpO2  di "+tbSpO2.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien"+tbSpO2.getValueAt(i,4).toString()+" Pada Tanggal "+tbSpO2.getValueAt(i,13).toString()+" Jam "+tbSpO2.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbSpO2.getValueAt(i,13).toString()+"T"+tbSpO2.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueQuantity\": {" +
@@ -1427,14 +1415,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbGCS.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik GCS "+tbGCS.getValueAt(i,4).toString()+" Pada Tanggal "+tbGCS.getValueAt(i,13).toString()+" Jam "+tbGCS.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik GCS di "+tbGCS.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbGCS.getValueAt(i,4).toString()+" Pada Tanggal "+tbGCS.getValueAt(i,13).toString()+" Jam "+tbGCS.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbGCS.getValueAt(i,13).toString()+"T"+tbGCS.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueQuantity\": {" +
@@ -1503,14 +1488,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbKesadaran.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik Kesadaran "+tbKesadaran.getValueAt(i,4).toString()+" Pada Tanggal "+tbKesadaran.getValueAt(i,13).toString()+" Jam "+tbKesadaran.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik Kesadaran di "+tbKesadaran.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbKesadaran.getValueAt(i,4).toString()+" Pada Tanggal "+tbKesadaran.getValueAt(i,13).toString()+" Jam "+tbKesadaran.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbKesadaran.getValueAt(i,13).toString()+"T"+tbKesadaran.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueCodeableConcept\": {" +
@@ -1595,14 +1577,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbTensi.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik Tensi "+tbTensi.getValueAt(i,4).toString()+" Pada Tanggal "+tbTensi.getValueAt(i,13).toString()+" Jam "+tbTensi.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik Tensi di "+tbTensi.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbTensi.getValueAt(i,4).toString()+" Pada Tanggal "+tbTensi.getValueAt(i,13).toString()+" Jam "+tbTensi.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbTensi.getValueAt(i,13).toString()+"T"+tbTensi.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"component\" : ["+
@@ -1702,14 +1681,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbTB.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik Tinggi Badan "+tbTB.getValueAt(i,4).toString()+" Pada Tanggal "+tbTB.getValueAt(i,13).toString()+" Jam "+tbTB.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik Tinggi Badan di "+tbTB.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbTB.getValueAt(i,4).toString()+" Pada Tanggal "+tbTB.getValueAt(i,13).toString()+" Jam "+tbTB.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbTB.getValueAt(i,13).toString()+"T"+tbTB.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueQuantity\": {" +
@@ -1862,14 +1838,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbSuhu.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik Suhu Badan "+tbSuhu.getValueAt(i,4).toString()+" Pada Tanggal "+tbSuhu.getValueAt(i,13).toString()+" Jam "+tbSuhu.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik Suhu Badan di "+tbSuhu.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbSuhu.getValueAt(i,4).toString()+" Pada Tanggal "+tbSuhu.getValueAt(i,13).toString()+" Jam "+tbSuhu.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbSuhu.getValueAt(i,13).toString()+"T"+tbSuhu.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueQuantity\": {" +
@@ -1933,14 +1906,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbRespirasi.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik Respirasi "+tbRespirasi.getValueAt(i,4).toString()+" Pada Tanggal "+tbRespirasi.getValueAt(i,13).toString()+" Jam "+tbRespirasi.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik Respirasi di "+tbRespirasi.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbRespirasi.getValueAt(i,4).toString()+" Pada Tanggal "+tbRespirasi.getValueAt(i,13).toString()+" Jam "+tbRespirasi.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbRespirasi.getValueAt(i,13).toString()+"T"+tbRespirasi.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueQuantity\": {" +
@@ -2004,14 +1974,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbNadi.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik Nadi "+tbNadi.getValueAt(i,4).toString()+" Pada Tanggal "+tbNadi.getValueAt(i,13).toString()+" Jam "+tbNadi.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik Nadi di "+tbNadi.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbNadi.getValueAt(i,4).toString()+" Pada Tanggal "+tbNadi.getValueAt(i,13).toString()+" Jam "+tbNadi.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbNadi.getValueAt(i,13).toString()+"T"+tbNadi.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueQuantity\": {" +
@@ -2075,14 +2042,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbSpO2.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik SpO2 "+tbSpO2.getValueAt(i,4).toString()+" Pada Tanggal "+tbSpO2.getValueAt(i,13).toString()+" Jam "+tbSpO2.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik SpO2 di "+tbSpO2.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbSpO2.getValueAt(i,4).toString()+" Pada Tanggal "+tbSpO2.getValueAt(i,13).toString()+" Jam "+tbSpO2.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbSpO2.getValueAt(i,13).toString()+"T"+tbSpO2.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueQuantity\": {" +
@@ -2146,14 +2110,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbGCS.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik GCS "+tbGCS.getValueAt(i,4).toString()+" Pada Tanggal "+tbGCS.getValueAt(i,13).toString()+" Jam "+tbGCS.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik GCS di "+tbGCS.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbGCS.getValueAt(i,4).toString()+" Pada Tanggal "+tbGCS.getValueAt(i,13).toString()+" Jam "+tbGCS.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbGCS.getValueAt(i,13).toString()+"T"+tbGCS.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueQuantity\": {" +
@@ -2216,14 +2177,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbKesadaran.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik Kesadaran "+tbKesadaran.getValueAt(i,4).toString()+" Pada Tanggal "+tbKesadaran.getValueAt(i,13).toString()+" Jam "+tbKesadaran.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik Kesadaran di "+tbKesadaran.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbKesadaran.getValueAt(i,4).toString()+" Pada Tanggal "+tbKesadaran.getValueAt(i,13).toString()+" Jam "+tbKesadaran.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbKesadaran.getValueAt(i,13).toString()+"T"+tbKesadaran.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueCodeableConcept\": {" +
@@ -2285,14 +2243,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbTensi.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik Tensi "+tbTensi.getValueAt(i,4).toString()+" Pada Tanggal "+tbTensi.getValueAt(i,13).toString()+" Jam "+tbTensi.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik Tensi di "+tbTensi.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbTensi.getValueAt(i,4).toString()+" Pada Tanggal "+tbTensi.getValueAt(i,13).toString()+" Jam "+tbTensi.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbTensi.getValueAt(i,13).toString()+"T"+tbTensi.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"component\" : ["+
@@ -2386,14 +2341,11 @@ public final class SatuSehatKirimObservationTTV extends javax.swing.JDialog {
                                         "\"performer\": [" +
                                             "{" +
                                                 "\"reference\": \"Practitioner/"+iddokter+"\"" +
-                                            "}," +
-                                            "{" +
-                                                "\"reference\": \"Organization/"+koneksiDB.IDSATUSEHAT()+"\"" +
                                             "}" +
                                         "]," +
                                         "\"encounter\": {" +
                                             "\"reference\": \"Encounter/"+tbTB.getValueAt(i,9).toString()+"\"," +
-                                            "\"display\": \"Pemeriksaan Fisik Tinggi Badan "+tbTB.getValueAt(i,4).toString()+" Pada Tanggal "+tbTB.getValueAt(i,13).toString()+" Jam "+tbTB.getValueAt(i,14).toString()+"\"" +
+                                            "\"display\": \"Pemeriksaan Fisik Tinggi Badan di "+tbTB.getValueAt(i,7).toString().replaceAll("Ralan","Rawat Jalan/IGD").replaceAll("Ranap","Rawat Inap")+", Pasien "+tbTB.getValueAt(i,4).toString()+" Pada Tanggal "+tbTB.getValueAt(i,13).toString()+" Jam "+tbTB.getValueAt(i,14).toString()+"\"" +
                                         "}," +
                                         "\"effectiveDateTime\": \""+tbTB.getValueAt(i,13).toString()+"T"+tbTB.getValueAt(i,14).toString()+"+07:00\"," +
                                         "\"valueQuantity\": {" +

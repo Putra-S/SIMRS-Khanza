@@ -309,6 +309,7 @@ public final class RMRiwayatPerawatan extends javax.swing.JDialog {
         chkAsuhanMedisRalanGeriatri = new widget.CekBox();
         chkAsuhanMedisRanap = new widget.CekBox();
         chkAsuhanMedisRanapKandungan = new widget.CekBox();
+        chkChecklistPreOperasi = new widget.CekBox();
         chkAsuhanPreOperasi = new widget.CekBox();
         chkAsuhanPreAnestesi = new widget.CekBox();
         chkAsuhanLanjutanRisikoJatuhDewasa = new widget.CekBox();
@@ -590,7 +591,7 @@ public final class RMRiwayatPerawatan extends javax.swing.JDialog {
         FormMenu.setBackground(new java.awt.Color(255, 255, 255));
         FormMenu.setBorder(null);
         FormMenu.setName("FormMenu"); // NOI18N
-        FormMenu.setPreferredSize(new java.awt.Dimension(255, 1787));
+        FormMenu.setPreferredSize(new java.awt.Dimension(255, 1817));
         FormMenu.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 1, 1));
 
         chkSemua.setSelected(true);
@@ -933,6 +934,14 @@ public final class RMRiwayatPerawatan extends javax.swing.JDialog {
         chkAsuhanMedisRanapKandungan.setOpaque(false);
         chkAsuhanMedisRanapKandungan.setPreferredSize(new java.awt.Dimension(245, 22));
         FormMenu.add(chkAsuhanMedisRanapKandungan);
+
+        chkChecklistPreOperasi.setSelected(true);
+        chkChecklistPreOperasi.setText("Check List Pre Operasi");
+        chkChecklistPreOperasi.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        chkChecklistPreOperasi.setName("chkChecklistPreOperasi"); // NOI18N
+        chkChecklistPreOperasi.setOpaque(false);
+        chkChecklistPreOperasi.setPreferredSize(new java.awt.Dimension(245, 22));
+        FormMenu.add(chkChecklistPreOperasi);
 
         chkAsuhanPreOperasi.setSelected(true);
         chkAsuhanPreOperasi.setText("Penilaian Pre Operasi");
@@ -1678,6 +1687,7 @@ private void BtnPasienKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event
             chkPelayananInformasiObat.setSelected(true);
             chkTransferAntarRuang.setSelected(true);
             chkCatatanCekGDS.setSelected(true);
+            chkChecklistPreOperasi.setSelected(true);
         }else{
             chkTriase.setSelected(false);
             chkAsuhanKeperawatanRalan.setSelected(false);
@@ -1755,6 +1765,7 @@ private void BtnPasienKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event
             chkPelayananInformasiObat.setSelected(false);
             chkTransferAntarRuang.setSelected(false);
             chkCatatanCekGDS.setSelected(false);
+            chkChecklistPreOperasi.setSelected(false);
         }
     }//GEN-LAST:event_chkSemuaItemStateChanged
 
@@ -1868,6 +1879,7 @@ private void BtnPasienKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event
     private widget.CekBox chkCatatanObservasiRanap;
     private widget.CekBox chkCatatanObservasiRanapKebidanan;
     private widget.CekBox chkCatatanObservasiRanapPostPartum;
+    private widget.CekBox chkChecklistPreOperasi;
     private widget.CekBox chkDiagnosaPenyakit;
     private widget.CekBox chkHasilPemeriksaanUSG;
     private widget.CekBox chkHemodialisa;
@@ -2369,6 +2381,8 @@ private void BtnPasienKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event
                     menampilkanTambahanGeriatri(rs.getString("no_rawat"));
                     //menampilkan skrining gizi lanjut
                     menampilkanEWS(rs.getString("no_rawat"));
+                    //menampilkan checlist pre operasi
+                    menampilkanChecklistPreOperasi(rs.getString("no_rawat"));
                     //menampilkan asuhan awal pre operasi
                     menampilkanAsuhanPreOperasi(rs.getString("no_rawat"));
                     //menampilkan asuhan awal pre anestesi
@@ -9898,6 +9912,126 @@ private void BtnPasienKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event
             }
         } catch (Exception e) {
             System.out.println("Notif Asuhan medis Rawat Inap Kebidanan : "+e);
+        }
+    }
+    
+    private void menampilkanChecklistPreOperasi(String norawat) {
+        try {
+            if(chkChecklistPreOperasi.isSelected()==true){
+                try {
+                    rs2=koneksi.prepareStatement(
+                            "select checklist_pre_operasi.tanggal,checklist_pre_operasi.sncn,checklist_pre_operasi.tindakan,checklist_pre_operasi.kd_dokter_bedah,"+
+                            "dokterbedah.nm_dokter as dokterbedah,checklist_pre_operasi.kd_dokter_anestesi,dokteranestesi.nm_dokter as dokteranestesi,checklist_pre_operasi.identitas,"+
+                            "checklist_pre_operasi.surat_ijin_bedah,checklist_pre_operasi.surat_ijin_anestesi,checklist_pre_operasi.surat_ijin_transfusi,"+
+                            "checklist_pre_operasi.penandaan_area_operasi,checklist_pre_operasi.keadaan_umum,checklist_pre_operasi.pemeriksaan_penunjang_rontgen,"+
+                            "checklist_pre_operasi.keterangan_pemeriksaan_penunjang_rontgen,checklist_pre_operasi.pemeriksaan_penunjang_ekg,"+
+                            "checklist_pre_operasi.keterangan_pemeriksaan_penunjang_ekg,checklist_pre_operasi.pemeriksaan_penunjang_usg,"+
+                            "checklist_pre_operasi.keterangan_pemeriksaan_penunjang_usg,checklist_pre_operasi.pemeriksaan_penunjang_ctscan,"+
+                            "checklist_pre_operasi.keterangan_pemeriksaan_penunjang_ctscan,checklist_pre_operasi.pemeriksaan_penunjang_mri,"+
+                            "checklist_pre_operasi.keterangan_pemeriksaan_penunjang_mri,checklist_pre_operasi.persiapan_darah,checklist_pre_operasi.keterangan_persiapan_darah,"+
+                            "checklist_pre_operasi.perlengkapan_khusus,checklist_pre_operasi.nip_petugas_ruangan,petugasruangan.nama as petugasruangan,"+
+                            "checklist_pre_operasi.nip_perawat_ok,petugasok.nama as petugasok "+
+                            "from checklist_pre_operasi inner join dokter as dokterbedah on dokterbedah.kd_dokter=checklist_pre_operasi.kd_dokter_bedah "+
+                            "inner join dokter as dokteranestesi on dokteranestesi.kd_dokter=checklist_pre_operasi.kd_dokter_anestesi "+
+                            "inner join petugas as petugasruangan on petugasruangan.nip=checklist_pre_operasi.nip_petugas_ruangan "+
+                            "inner join petugas as petugasok on petugasok.nip=checklist_pre_operasi.nip_perawat_ok "+
+                            "where checklist_pre_operasi.no_rawat='"+norawat+"' order by checklist_pre_operasi.tanggal").executeQuery();
+                    if(rs2.next()){
+                        htmlContent.append(
+                          "<tr class='isi'>"+ 
+                            "<td valign='top' width='2%'></td>"+        
+                            "<td valign='top' width='18%'>Check List Pre Operasi</td>"+
+                            "<td valign='top' width='1%' align='center'>:</td>"+
+                            "<td valign='top' width='79%'>"+
+                              "<table width='100%' border='0' align='center' cellpadding='3px' cellspacing='0' class='tbl_form'>"
+                        );
+                        rs2.beforeFirst();
+                        while(rs2.next()){
+                            htmlContent.append(
+                                 "<tr>"+
+                                    "<td valign='top'>"+
+                                       "YANG MELAKUKAN PENGKAJIAN"+  
+                                       "<table width='100%' border='0' align='center' cellpadding='3px' cellspacing='0px' class='tbl_form'>"+
+                                          "<tr>"+
+                                              "<td width='50%' border='0'>Petugas Ruangan : "+rs2.getString("nip_petugas_ruangan")+" "+rs2.getString("petugasruangan")+"</td>"+
+                                              "<td width='50%' border='0'>Perawat Kamar Operasi : "+rs2.getString("nip_perawat_ok")+" "+rs2.getString("petugasok")+"</td>"+
+                                          "</tr>"+
+                                       "</table>"+
+                                    "</td>"+
+                                 "</tr>"+
+                                 "<tr>"+
+                                    "<td valign='top'>"+
+                                       "RENCANA OPERASI"+  
+                                       "<table width='100%' border='0' align='center' cellpadding='3px' cellspacing='0px' class='tbl_form'>"+
+                                          "<tr>"+
+                                              "<td width='33%' border='0'>Tanggal : "+rs2.getString("tanggal")+"</td>"+
+                                              "<td width='67%' border='0'>Dokter Bedah : "+rs2.getString("kd_dokter_bedah")+" "+rs2.getString("dokterbedah")+"</td>"+
+                                          "</tr>"+
+                                          "<tr>"+
+                                              "<td width='33%' border='0'>SN/CN : "+rs2.getString("sncn")+"</td>"+
+                                              "<td width='67%' border='0'>Dokter Anestesi : "+rs2.getString("kd_dokter_anestesi")+" "+rs2.getString("dokteranestesi")+"</td>"+
+                                          "</tr>"+
+                                          "<tr>"+
+                                              "<td width='100%' border='0' colspan='2'>Tindakan/Operasi : "+rs2.getString("tindakan")+"</td>"+
+                                          "</tr>"+
+                                       "</table>"+
+                                    "</td>"+
+                                 "</tr>"+
+                                 "<tr>"+
+                                    "<td valign='top'>"+
+                                       "PERAWAT MELAKUKAN KONFIRMASI"+  
+                                       "<table width='100%' border='0' align='center' cellpadding='3px' cellspacing='0px' class='tbl_form'>"+
+                                          "<tr>"+
+                                              "<td width='33%' border='0'>Identitas : "+rs2.getString("identitas")+"</td>"+
+                                              "<td width='33%' border='0'>Keadaan Umum Pasien : "+rs2.getString("keadaan_umum")+"</td>"+
+                                              "<td width='33%' border='0'>Penandaan Area Operasi : "+rs2.getString("penandaan_area_operasi")+"</td>"+
+                                          "</tr>"+
+                                          "<tr>"+
+                                              "<td width='33%' border='0'>Surat Ijin Bedah : "+rs2.getString("surat_ijin_bedah")+"</td>"+
+                                              "<td width='33%' border='0'>Surat Ijin Anestesi : "+rs2.getString("surat_ijin_anestesi")+"</td>"+
+                                              "<td width='33%' border='0'>Surat Ijin Tranfusi : "+rs2.getString("surat_ijin_transfusi")+"</td>"+
+                                          "</tr>"+
+                                          "<tr>"+
+                                              "<td width='66%' border='0' colspan='2'>Persiapan Darah : "+rs2.getString("persiapan_darah")+(rs2.getString("keterangan_persiapan_darah").equals("")?"":", "+rs2.getString("keterangan_persiapan_darah"))+"</td>"+
+                                              "<td width='33%' border='0'>Perlengkapan Khusus, Alat/Implan : "+rs2.getString("perlengkapan_khusus")+"</td>"+
+                                          "</tr>"+
+                                          "<tr>"+
+                                              "<td width='100%' colspan='3'>"+
+                                                  "Hasil Pemeriksaan Penunjang :"+
+                                                  "<table width='98%' border='0' align='right' cellpadding='3px' cellspacing='0px' class='tbl_form'>"+
+                                                     "<tr>"+
+                                                        "<td width='50%' border='0'>Radiologi : "+rs2.getString("pemeriksaan_penunjang_rontgen")+(rs2.getString("keterangan_pemeriksaan_penunjang_rontgen").equals("")?"":", "+rs2.getString("keterangan_pemeriksaan_penunjang_rontgen"))+"</td>"+
+                                                        "<td width='50%' border='0'>EKG : "+rs2.getString("pemeriksaan_penunjang_ekg")+(rs2.getString("keterangan_pemeriksaan_penunjang_ekg").equals("")?"":", "+rs2.getString("keterangan_pemeriksaan_penunjang_ekg"))+"</td>"+
+                                                     "</tr>"+
+                                                     "<tr>"+
+                                                        "<td width='50%' border='0'>USG : "+rs2.getString("pemeriksaan_penunjang_usg")+(rs2.getString("keterangan_pemeriksaan_penunjang_usg").equals("")?"":", "+rs2.getString("keterangan_pemeriksaan_penunjang_usg"))+"</td>"+
+                                                        "<td width='50%' border='0'>CT Scan : "+rs2.getString("pemeriksaan_penunjang_ctscan")+(rs2.getString("keterangan_pemeriksaan_penunjang_ctscan").equals("")?"":", "+rs2.getString("keterangan_pemeriksaan_penunjang_ctscan"))+"</td>"+
+                                                     "</tr>"+
+                                                     "<tr>"+
+                                                        "<td width='100%' border='0' colspan='2'>MRI : "+rs2.getString("pemeriksaan_penunjang_mri")+(rs2.getString("keterangan_pemeriksaan_penunjang_mri").equals("")?"":", "+rs2.getString("keterangan_pemeriksaan_penunjang_mri"))+"</td>"+
+                                                     "</tr>"+
+                                                  "</table>"+
+                                              "</td>"+
+                                          "</tr>"+
+                                       "</table>"+
+                                    "</td>"+
+                                 "</tr>"); 
+                        }
+                        htmlContent.append(
+                              "</table>"+
+                            "</td>"+
+                          "</tr>");
+                    }
+                } catch (Exception e) {
+                    System.out.println("Notifikasi : "+e);
+                } finally{
+                    if(rs2!=null){
+                        rs2.close();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Notif Asuhan Medis Rawat Jalan : "+e);
         }
     }
     

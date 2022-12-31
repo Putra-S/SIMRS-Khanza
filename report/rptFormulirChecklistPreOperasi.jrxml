@@ -250,7 +250,7 @@
 					<font fontName="Tahoma" size="11" isBold="false"/>
 					<paragraph lineSpacing="Single"/>
 				</textElement>
-				<text><![CDATA[CHECKLIST PRE OPERASI/SEBELUM PASIEN DIANTAR KE RUANG OPERASI]]></text>
+				<text><![CDATA[CHECK LIST PRE OPERASI/SEBELUM PASIEN DIANTAR KE RUANG OPERASI]]></text>
 			</staticText>
 			<staticText>
 				<reportElement mode="Transparent" x="5" y="90" width="60" height="14" forecolor="#000000" backcolor="#F0F0DC" uuid="b2cdf71f-db7d-4272-8d62-f12f21abeefc"/>
