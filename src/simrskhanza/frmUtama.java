@@ -38986,7 +38986,7 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
         btnKirimObservationTTVSatuSehat.addActionListener(this::btnKirimObservationTTVSatuSehatActionPerformed);
         
         btnSignInSebelumAnestesi = new widget.ButtonBig();
-        btnSignInSebelumAnestesi.setIcon(new javax.swing.ImageIcon(getClass().getResource("/48x48/9554573_calendar_note_date_schedule_event_icon.png")));
+        btnSignInSebelumAnestesi.setIcon(new javax.swing.ImageIcon(getClass().getResource("/48x48/2064484_education_examination_learn_student_study_icon.png")));
         btnSignInSebelumAnestesi.setText("Sign-In Sebelum Anestesi");
         btnSignInSebelumAnestesi.setIconTextGap(0);
         btnSignInSebelumAnestesi.setName("btnSignInSebelumAnestesi"); 
