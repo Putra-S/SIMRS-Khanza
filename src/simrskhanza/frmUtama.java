@@ -38971,7 +38971,7 @@ private void MnGantiPasswordBtnLogActionPerformed(java.awt.event.ActionEvent evt
         
         btnChecklistPreOperasi = new widget.ButtonBig();
         btnChecklistPreOperasi.setIcon(new javax.swing.ImageIcon(getClass().getResource("/48x48/7638087_writing_education_learning_pencil_note_icon.png")));
-        btnChecklistPreOperasi.setText("Checklist Pre Operasi");
+        btnChecklistPreOperasi.setText("Check List Pre Operasi");
         btnChecklistPreOperasi.setIconTextGap(0);
         btnChecklistPreOperasi.setName("btnChecklistPreOperasi"); 
         btnChecklistPreOperasi.setPreferredSize(new java.awt.Dimension(200, 90));

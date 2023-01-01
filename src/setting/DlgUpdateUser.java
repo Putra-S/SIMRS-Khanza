@@ -3769,8 +3769,8 @@ public class DlgUpdateUser extends javax.swing.JDialog {
             tabMode.addRow(new Object[]{false,"[L]Catatan Cek GDS",catatan_cek_gds});
         }
         
-        if("[L]Checklist Pre Operasi".toLowerCase().contains(TCari.getText().toLowerCase())){
-            tabMode.addRow(new Object[]{false,"[L]Checklist Pre Operasi",checklist_pre_operasi});
+        if("[L]Check List Pre Operasi".toLowerCase().contains(TCari.getText().toLowerCase())){
+            tabMode.addRow(new Object[]{false,"[L]Check List Pre Operasi",checklist_pre_operasi});
         }
         
         if("[L]Sign-In Sebelum Anestesi".toLowerCase().contains(TCari.getText().toLowerCase())){
@@ -7388,7 +7388,7 @@ public class DlgUpdateUser extends javax.swing.JDialog {
                 Sequel.mengedit("user","id_user=AES_ENCRYPT('"+TKd.getText()+"','nur')","catatan_cek_gds='"+tbUser.getValueAt(i,2).toString()+"'");
             }
             
-            if("[L]Checklist Pre Operasi".equals(tbUser.getValueAt(i,1).toString())){
+            if("[L]Check List Pre Operasi".equals(tbUser.getValueAt(i,1).toString())){
                 Sequel.mengedit("user","id_user=AES_ENCRYPT('"+TKd.getText()+"','nur')","checklist_pre_operasi='"+tbUser.getValueAt(i,2).toString()+"'");
             }
             
